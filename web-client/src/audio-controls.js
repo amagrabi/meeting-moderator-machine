@@ -14,7 +14,7 @@ const AudioControls = () => {
           const handleSuccess = function(stream) {
             const activeTracks = stream.getTracks();
 
-            const options = { mimeType: "audio/webm" };
+            const options = { mimeType: "audio/ogg" };
             const recordedChunks = [];
             recorderRef.current = new MediaRecorder(stream, options);
 
