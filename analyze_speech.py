@@ -1,11 +1,9 @@
-import os
-import subprocess
 import pprint
 
 from pydub import AudioSegment
 from google.oauth2 import service_account
 
-CREDENTIALS = service_account.Credentials.from_service_account_file('ct-machine-learning-6795b2605267.json')
+CREDENTIALS = service_account.Credentials.from_service_account_file('google-credentials.json')
 
 
 def convert_ogg2flac(file_path):
