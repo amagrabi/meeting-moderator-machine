@@ -3,6 +3,13 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+# Audio Samples
+/audio_samples
+/tmp
+
+# Credentials
+*credentials.json
+
 # C extensions
 *.so
 
