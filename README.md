@@ -17,6 +17,10 @@ conda activate meeting-moderator-machine
 pip install -r requirements.txt
 ```
 
+
+For audio file conversion you need to install ffmpeg:  
+`brew install ffmpeg`
+
 ## Running the Bot
 
 *TODO*
