@@ -1,14 +1,11 @@
 import React from "react";
+import { Container, Header, Menu } from "semantic-ui-react";
+// import Chart from 'chart.js';
 import AudioControls from "./audio-controls";
-import Chart from "chart.js";
 
 // var myChart = new Chart(ctx, {...});
 
 const Home = () => {
-  const [isPlaying, setIsPlaying] = React.useState(false);
-  const recorderRef = React.useRef(null);
-  const downloadRef = React.useRef(null);
-
   return (
     <div>
       <Menu fixed="top" inverted>

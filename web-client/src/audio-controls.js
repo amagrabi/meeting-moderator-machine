@@ -1,16 +1,5 @@
 import React from "react";
-import {
-  Container,
-  Divider,
-  Dropdown,
-  Grid,
-  Header,
-  Image,
-  List,
-  Menu,
-  Segment,
-  Button
-} from "semantic-ui-react";
+import { Container, Button } from "semantic-ui-react";
 
 const AudioControls = () => {
   const [isPlaying, setIsPlaying] = React.useState(false);
@@ -29,13 +18,13 @@ const AudioControls = () => {
             const recordedChunks = [];
             recorderRef.current = new MediaRecorder(stream, options);
 
-            recorderRef.current.addEventListener("dataavailable", function(e) {
+            recorderRef.current.addEventListener("dataavailable", e => {
               if (e.data.size > 0) {
                 recordedChunks.push(e.data);
               }
             });
 
-            recorderRef.current.addEventListener("stop", function() {
+            recorderRef.current.addEventListener("stop", () => {
               downloadRef.current.href = URL.createObjectURL(
                 new Blob(recordedChunks)
               );
@@ -67,7 +56,12 @@ const AudioControls = () => {
         Stop the meeting
       </Button>
       <Container as="h1">
-        <a ref={downloadRef}>Download</a>
+        <a
+          ref={downloadRef}
+          href={downloadRef.current && downloadRef.current.href}
+        >
+          Download
+        </a>
       </Container>
     </Container>
   );
