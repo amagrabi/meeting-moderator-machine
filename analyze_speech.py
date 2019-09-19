@@ -54,11 +54,12 @@ def analyze_text(text, max_topics=5):
     return sentiment_out, topics_out
 
 
-def analyze_audio(file_path):
+def analyze_audio(file_path, speaker_count=3):
     """Takes an audio file and outputs meeting statistics as a dictionary.
 
     Args:
         file_path (str)
+        speaker_count (int)
 
     Returns:
         Dict[str, Any]
@@ -73,7 +74,7 @@ def analyze_audio(file_path):
 
     config = {
         "enable_speaker_diarization": True,
-        "diarization_speaker_count": 2,
+        "diarization_speaker_count": speaker_count,
         "language_code": "en-US",
         "encoding": speech_v1p1beta1.enums.RecognitionConfig.AudioEncoding.FLAC,
         "max_alternatives": 1,
@@ -144,7 +145,7 @@ def analyze_audio(file_path):
 def main():
     from pprint import pprint
     file_path = "audio_samples/meeting_ct_02_1mins.ogg"
-    pprint(analyze_audio(file_path))
+    pprint(analyze_audio(file_path, speaker_count=4))
 
 
 if __name__ == "__main__":
