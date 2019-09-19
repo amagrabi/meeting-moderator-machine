@@ -3,3 +3,4 @@ google-cloud-speech
 ipython
 numpy
 pandas
+Flask==1.1.1
