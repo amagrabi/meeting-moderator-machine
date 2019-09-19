@@ -3,6 +3,9 @@ import { Container, Button } from "semantic-ui-react";
 
 const AudioControls = () => {
   const [isPlaying, setIsPlaying] = React.useState(false);
+  const [rawTranscript, setRawTranscript] = React.useState("");
+  const [transcript, setTranscript] = React.useState([]);
+  const [speakers, setSpeakers] = React.useState([]);
   const recorderRef = React.useRef(null);
   const downloadRef = React.useRef(null);
 
@@ -31,6 +34,31 @@ const AudioControls = () => {
               activeTracks.map(track => track.stop());
 
               downloadRef.current.download = "acetest.wav";
+              let form = new FormData();
+              form.append("file", new Blob(recordedChunks));
+              fetch("/uploadAudio", { method: "post", body: form })
+                .then(res => res.json())
+                .then(res => {
+                  const { raw_transcript, speakers, transcript } = res;
+                  setRawTranscript(raw_transcript);
+                  setTranscript(transcript);
+                  setSpeakers(speakers);
+                  // {
+                  // "raw_transcript": "hello lit again alone",
+                  // "speakers": [
+                  //   {
+                  //     "ratio": 1.0,
+                  //     "speaker_id": 1
+                  //   }
+                  // ],
+                  // "transcript": [
+                  //   {
+                  //     "line": "hello lit again alone",
+                  //     "speaker_id": 1
+                  //   }
+                  // ]
+                  // }
+                });
             });
 
             recorderRef.current.start();
@@ -63,6 +91,7 @@ const AudioControls = () => {
           Download
         </a>
       </Container>
+      {rawTranscript}
     </Container>
   );
 };
