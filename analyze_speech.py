@@ -16,11 +16,12 @@ def convert_ogg2flac(file_path):
     return new_file_path
 
 
-def analyze_text(text):
+def analyze_text(text, max_topics=5):
     """Takes a text and outputs statistics on sentiments and topics.
 
         Args:
             text (str)
+            max_topics (int)
 
         Returns:
             Dict[str, Any]
@@ -41,8 +42,12 @@ def analyze_text(text):
     response = language_client.analyze_entities(document, encoding_type=language_v1beta2.enums.EncodingType.UTF8)
     topics = []
     for entity in response.entities:
-        topics.append({'topic': entity.name, 'ratio': round(entity.salience, 2)})
+        topics.append({'topic': entity.name, 'ratio': round(entity.salience, 3)})
     topics_out = sorted(topics, key=lambda k: k['ratio'], reverse=True)
+    topics_out = topics_out[0:max_topics]
+    ratio_sum = sum([topic["ratio"] for topic in topics_out])
+    for topic in topics_out:
+        topic["ratio"] = round(topic["ratio"]/ratio_sum, 3)
 
     return sentiment_out, topics_out
 
