@@ -45,9 +45,11 @@ def analyze_text(text, max_topics=5):
         topics.append({'topic': entity.name, 'ratio': round(entity.salience, 3)})
     topics_out = sorted(topics, key=lambda k: k['ratio'], reverse=True)
     topics_out = topics_out[0:max_topics]
-    ratio_sum = sum([topic["ratio"] for topic in topics_out])
-    for topic in topics_out:
-        topic["ratio"] = round(topic["ratio"]/ratio_sum, 3)
+
+    # Rescale max_topics to 100%
+    # ratio_sum = sum([topic["ratio"] for topic in topics_out])
+    # for topic in topics_out:
+    #     topic["ratio"] = round(topic["ratio"]/ratio_sum, 3)
 
     return sentiment_out, topics_out
 
@@ -147,4 +149,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
