@@ -1,39 +1,33 @@
-import pprint
+import io
 
-from pydub import AudioSegment
+from google.cloud import speech_v1p1beta1
+from google.cloud.speech_v1p1beta1 import enums
 from google.oauth2 import service_account
+from pydub import AudioSegment
 
-CREDENTIALS = service_account.Credentials.from_service_account_file('google-credentials.json')
+CREDENTIALS = service_account.Credentials.from_service_account_file('google_credentials.json')
 
 
 def convert_ogg2flac(file_path):
+    """Takes a .ogg audio file and converts it to .flac"""
     audio = AudioSegment.from_ogg(file_path)
     new_file_path = file_path.split(".")[0] + ".flac"
     audio.export(new_file_path, format="flac")
     return new_file_path
 
 
-def analyze_with_speaker_recog(file_path):
-    """
-    Print confidence level for individual words in a transcription of a short audio
-    file
-    Separating different speakers in an audio file recording
+def analyze_audio(file_path):
+    """Takes an audio file and outputs meeting statistics as a dictionary.
 
     Args:
-      local_file_path Path to local audio file, e.g. /path/audio.wav
+        file_path (str)
+
+    Returns:
+        Dict[str, Any]
+
     """
-    from google.cloud import speech_v1p1beta1
-    from google.cloud.speech_v1p1beta1 import enums
-    import io
 
-    file_path = "audio_samples/meeting_ct_02_1mins.ogg"
-    # file_path = "gs://cthack19-meeting-moderator-machine/audio_samples/meeting_business_04_2mins_channel1.ogg"
-    # file_path = "audio_samples/meeting_business_04_2mins.ogg"
-    # file_path = "audio_samples/acetest_ogg.wav"
-    # file_path = "audio_samples/meeting_school_01_1mins_mono.flac"
-    # local_file_path = os.path.join("audio_samples", "acetest.flac")
-    # local_file_path = os.path.join("audio_samples", "meeting_school_01_1mins.mp3")
-
+    # Convert files to flac
     if file_path.split(".")[-1] != "flac":
         file_path = convert_ogg2flac(file_path)
 
@@ -42,12 +36,12 @@ def analyze_with_speaker_recog(file_path):
     config = {
         "enable_speaker_diarization": True,
         "diarization_speaker_count": 2,
-        # "audio_channel_count": 1,
         "language_code": "en-US",
         "encoding": enums.RecognitionConfig.AudioEncoding.FLAC,
-        # "sample_rate_hertz": 48000,
         "max_alternatives": 1,
         "use_enhanced": True
+        # "audio_channel_count": 1,
+        # "sample_rate_hertz": 48000,
     }
 
     # Local file
@@ -59,8 +53,6 @@ def analyze_with_speaker_recog(file_path):
     # audio = {"uri": file_path}
 
     operation = client.long_running_recognize(config, audio)
-
-    print(u"Waiting for operation to complete...")
     response = operation.result()
 
     json_out = {}
@@ -100,4 +92,15 @@ def analyze_with_speaker_recog(file_path):
             })
         json_out["speakers"] = speaker_ratios
 
-    pprint.pprint(json_out)
+    return json_out
+
+
+def main():
+    from pprint import pprint
+    file_path = "audio_samples/meeting_ct_02_1mins.ogg"
+    pprint(analyze_audio(file_path))
+
+
+if __name__ == "__main__":
+    main()
+
