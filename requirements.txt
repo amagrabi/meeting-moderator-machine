@@ -1,5 +1,6 @@
 ffmpeg-python
 google-cloud-speech
+google-cloud-language
 ipython
 numpy
 pandas
