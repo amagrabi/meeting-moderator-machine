@@ -83,7 +83,11 @@ def analyze_with_speaker_recog(file_path):
                 })
                 sentence = [word.word]
                 last_speaker = current_speaker
-        transcript.append("Speaker " + str(last_speaker) + ": " + ' '.join(sentence))
+        transcript.append({
+                    "speaker_id": last_speaker,
+                    "line": ' '.join(sentence)
+                })
+
         json_out["transcript"] = transcript
 
         speaker_tags = [word.speaker_tag for word in alternative.words]
