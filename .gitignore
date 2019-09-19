@@ -10,6 +10,13 @@ __pycache__/
 # C extensions
 *.so
 
+# Audio Samples and Tmp
+/audio_samples
+/tmp
+
+ # Credentials
+*credentials.json
+
 # Distribution / packaging
 .Python
 build/
