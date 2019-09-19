@@ -1,7 +1,6 @@
 # Sensitive data
 audio_samples
-ct-machine-learning-6795b2605267.json
-ct-machine-learning-speech-credentials.json
+google_credentials.json
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
