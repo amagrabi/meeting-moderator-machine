@@ -3,3 +3,4 @@ google-cloud-speech
 ipython
 numpy
 pandas
+pydub
