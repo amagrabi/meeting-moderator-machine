@@ -43,18 +43,21 @@ def analyze_text(text, max_topics=5):
                        'sentiment': round(entity.sentiment.score,3)})
     topics_out = sorted(topics, key=lambda k: k['ratio'], reverse=True)
     topics_out = topics_out[0:max_topics]
-    ratio_sum = sum([topic["ratio"] for topic in topics_out])
-    for topic in topics_out:
-        topic["ratio"] = round(topic["ratio"]/ratio_sum, 3)
+
+    # Rescale max_topics to 100%
+    # ratio_sum = sum([topic["ratio"] for topic in topics_out])
+    # for topic in topics_out:
+    #     topic["ratio"] = round(topic["ratio"]/ratio_sum, 3)
 
     return sentiment_out, topics_out
 
 
-def analyze_audio(file_path):
+def analyze_audio(file_path, speaker_count=3):
     """Takes an audio file and outputs meeting statistics as a dictionary.
 
     Args:
         file_path (str)
+        speaker_count (int)
 
     Returns:
         Dict[str, Any]
@@ -69,7 +72,7 @@ def analyze_audio(file_path):
 
     config = {
         "enable_speaker_diarization": True,
-        "diarization_speaker_count": 2,
+        "diarization_speaker_count": speaker_count,
         "language_code": "en-US",
         "encoding": speech_v1p1beta1.enums.RecognitionConfig.AudioEncoding.FLAC,
         "max_alternatives": 1,
@@ -89,13 +92,24 @@ def analyze_audio(file_path):
     operation = speech_client.long_running_recognize(config, audio)
     response = operation.result()
 
-    json_out = {}
+    if not response.results:
+        json_out = {
+            "google_transcript": "",
+            "raw_transcript": "",
+            "transcript": [],
+            "speakers": [],
+            "topics": [],
+            "sentiment": {"score": 0, "magnitude": 0},
+        }
+        return json_out
+
     result = response.results[-1]
     alternative = result.alternatives[0]
 
-    json_out["google_transcript"] = alternative.transcript
-
-    json_out["raw_transcript"] = ' '.join([word.word for word in alternative.words])
+    json_out = {
+        "google_transcript": alternative.transcript,
+        "raw_transcript": ' '.join([word.word for word in alternative.words])
+    }
 
     # Get transcript distributed by speakers
     transcript = []
@@ -140,9 +154,8 @@ def analyze_audio(file_path):
 def main():
     from pprint import pprint
     file_path = "audio_samples/meeting_ct_02_1mins.ogg"
-    pprint(analyze_audio(file_path))
+    pprint(analyze_audio(file_path, speaker_count=3))
 
 
 if __name__ == "__main__":
     main()
-
