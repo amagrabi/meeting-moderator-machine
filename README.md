@@ -3,9 +3,11 @@
 Build a voice-based bot that listens to our meetings and helps to improve them. 
 
 **Potential features**: 
-1) Track topics being talked about and alert when people do not stay on topic.
-2) Track speaking time of different people and alert when one person talks too much.
-3) Send transcript of meeting via email to all participants afterwards.
+1) Avoid imbalanced meetings in which one person talks too much.
+2) Avoid chaotic meetings in which people do not stay on topic.
+3) Avoid negative meetings when people.
+
+![demo][demo.png]
 
 ## Environment Setup
 
