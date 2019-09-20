@@ -24,7 +24,7 @@ const Home = () => {
   const getSpeakerColorByRatio = d3
     .scaleLinear()
     .domain(speakers.map(({ ratio }) => ratio))
-    .range(d3.schemeSet3);
+    .range(d3.schemeTableau10);
   const getSpeakerColorByUserId = userId => {
     const speaker = speakers.find(({ speaker_id }) => speaker_id === userId);
     return getSpeakerColorByRatio(speaker.ratio);
@@ -163,7 +163,7 @@ const Home = () => {
                       datasets: [
                         {
                           data: topics.map(({ ratio }) => ratio),
-                          backgroundColor: d3.schemeSet3
+                          backgroundColor: d3.schemeTableau10
                         }
                       ],
 
@@ -201,7 +201,7 @@ const Home = () => {
                       datasets: [
                         {
                           data: speakers.map(({ ratio }) => ratio),
-                          backgroundColor: d3.schemeSet3
+                          backgroundColor: d3.schemeTableau10
                         }
                       ],
 
