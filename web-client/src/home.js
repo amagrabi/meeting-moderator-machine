@@ -150,7 +150,7 @@ const Home = () => {
               <Grid.Column>
                 <Container style={{ width: "600px" }}>
                   <h1>Topics covered </h1>
-                  <p>What was taked about during the meeting</p>
+                  <p>What was talked about during the meeting</p>
                   <small>
                     The size of each part of the Pie, coresponds to how long it
                     was covered
@@ -187,10 +187,10 @@ const Home = () => {
               </Grid.Column>
               <Grid.Column>
                 <Container style={{ width: "600px" }}>
-                  <h1>Speakers contriputions ratio</h1>
-                  <p>How long each speaker participated to the meeting</p>
+                  <h1>Speaker contribution ratio</h1>
+                  <p>How long each speaker talked during the meeting </p>
                   <small>
-                    The size of each part of the Pie, coresponds to how long the
+                    The size of each part of the pie, coresponds to how long the
                     speaker talked
                   </small>
                   <Chart
