@@ -1,11 +1,12 @@
 # Meeting Moderator Machine
 
-Build a voice-based bot that listens to our meetings and helps to improve them. 
+Voice-based bot that listens to meetings and helps to improve them in the following ways: 
 
-**Potential features**: 
 1) Avoid imbalanced meetings in which one person talks too much.
 2) Avoid chaotic meetings in which people do not stay on topic.
 3) Avoid negative meetings when people.
+
+## Demo Screenshot
 
 ![demo](demo.png)
 
