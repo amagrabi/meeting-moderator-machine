@@ -1,7 +1,7 @@
 import io
 
 from google.cloud import speech_v1p1beta1
-from google.cloud import language_v1beta2
+from google.cloud import language_v1
 from google.oauth2 import service_account
 from pydub import AudioSegment
 
@@ -27,22 +27,20 @@ def analyze_text(text, max_topics=5):
             Dict[str, Any]
 
         """
-    language_client = language_v1beta2.LanguageServiceClient(credentials=CREDENTIALS)
-    document = language_v1beta2.types.Document(
-        content=text,
-        type=language_v1beta2.enums.Document.Type.PLAIN_TEXT,
-        language="en"
-    )
+    language_client = language_v1.LanguageServiceClient(credentials=CREDENTIALS)
+    document = {"content": text, "type": language_v1.enums.Document.Type.PLAIN_TEXT, "language": "en"}
 
     # Analyze sentiment
     sentiment = language_client.analyze_sentiment(document=document).document_sentiment
     sentiment_out = {"score": round(sentiment.score, 2), "magnitude": round(sentiment.magnitude, 2)}
 
     # Analyze topics
-    response = language_client.analyze_entities(document, encoding_type=language_v1beta2.enums.EncodingType.UTF8)
+    response = language_client.analyze_entity_sentiment(document, encoding_type=language_v1.enums.EncodingType.UTF8)
     topics = []
     for entity in response.entities:
-        topics.append({'topic': entity.name, 'ratio': round(entity.salience, 3)})
+        topics.append({'topic': entity.name,
+                       'ratio': round(entity.salience, 3),
+                       'sentiment': round(entity.sentiment.score,3)})
     topics_out = sorted(topics, key=lambda k: k['ratio'], reverse=True)
     topics_out = topics_out[0:max_topics]
     ratio_sum = sum([topic["ratio"] for topic in topics_out])
