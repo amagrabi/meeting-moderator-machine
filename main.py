@@ -25,7 +25,6 @@ def send_css(path):
 def uploadAudio():
      content = request.files["file"].read()
      speakers_count = int(request.form.get('speakers_count'))
-     print(speakers_count)
      with open('file.wav', 'wb') as f_vid:
          f_vid.write(content)
      return  analyze_speech.analyze_audio('file.wav', speakers_count)
