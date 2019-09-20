@@ -22,6 +22,10 @@ pip install -r requirements.txt
 For audio file conversion you need to install ffmpeg:  
 `brew install ffmpeg`
 
+The backend calls several APIs of the [Google Cloud Platform](https://cloud.google.com/). 
+To enable them, you need to create a google cloud project and generate a credentials file with permissions for the Speech, Language and Storage APIs.
+This file has to be in the root directory of the repository as `google_credentials.json`. 
+
 ## Running the Website
 
 ```python
