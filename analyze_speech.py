@@ -94,13 +94,24 @@ def analyze_audio(file_path, speaker_count=3):
     operation = speech_client.long_running_recognize(config, audio)
     response = operation.result()
 
-    json_out = {}
+    if not response.results:
+        json_out = {
+            "google_transcript": "",
+            "raw_transcript": "",
+            "transcript": [],
+            "speakers": [],
+            "topics": [],
+            "sentiment": {"score": 0, "magnitude": 0},
+        }
+        return json_out
+
     result = response.results[-1]
     alternative = result.alternatives[0]
 
-    json_out["google_transcript"] = alternative.transcript
-
-    json_out["raw_transcript"] = ' '.join([word.word for word in alternative.words])
+    json_out = {
+        "google_transcript": alternative.transcript,
+        "raw_transcript": ' '.join([word.word for word in alternative.words])
+    }
 
     # Get transcript distributed by speakers
     transcript = []
@@ -145,7 +156,7 @@ def analyze_audio(file_path, speaker_count=3):
 def main():
     from pprint import pprint
     file_path = "audio_samples/meeting_ct_02_1mins.ogg"
-    pprint(analyze_audio(file_path, speaker_count=4))
+    pprint(analyze_audio(file_path, speaker_count=3))
 
 
 if __name__ == "__main__":
