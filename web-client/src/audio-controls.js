@@ -1,8 +1,9 @@
 import React from "react";
-import { Container, Button } from "semantic-ui-react";
+import { Container, Button, Input, Label } from "semantic-ui-react";
 
 const AudioControls = props => {
   const [isPlaying, setIsPlaying] = React.useState(false);
+  const [speakersCount, setSpeakersCount] = React.useState(0);
   const recorderRef = React.useRef(null);
 
   return (
@@ -32,6 +33,7 @@ const AudioControls = props => {
               // downloadRef.current.download = "acetest.wav";
               let form = new FormData();
               form.append("file", new Blob(recordedChunks));
+              form.append("speakers_count", speakersCount);
               props.setIsLoading(true);
               fetch("/uploadAudio", { method: "post", body: form })
                 .then(res => res.json())
@@ -65,6 +67,18 @@ const AudioControls = props => {
       >
         Stop the meeting
       </Button>
+      <Label>
+        Speakers count
+        <Input
+          min={0}
+          value={speakersCount}
+          onChange={e => setSpeakersCount(e.target.value)}
+          icon="users"
+          iconPosition="left"
+          placeholder="speakers count..."
+          type="number"
+        ></Input>
+      </Label>
     </Container>
   );
 };
