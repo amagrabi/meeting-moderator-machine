@@ -1,4 +1,3 @@
-import io
 
 from google.cloud import speech_v1p1beta1
 from google.cloud import language_v1
@@ -7,6 +6,7 @@ from google.oauth2 import service_account
 from pydub import AudioSegment
 
 CREDENTIALS = service_account.Credentials.from_service_account_file('google_credentials.json')
+GCS_BUCKET_NAME = 'cthack19-meeting-moderator-machine'
 
 
 def convert_ogg2flac(file_path):
@@ -21,8 +21,8 @@ def analyze_text(text, max_topics=5):
     """Takes a text and outputs statistics on sentiments and topics.
 
         Args:
-            text (str)
-            max_topics (int)
+            text (str): Raw text to be analzyed.
+            max_topics (int): Maximum number of topics shown in the visualization.
 
         Returns:
             Dict[str, Any]
@@ -45,16 +45,11 @@ def analyze_text(text, max_topics=5):
     topics_out = sorted(topics, key=lambda k: k['ratio'], reverse=True)
     topics_out = topics_out[0:max_topics]
 
-    # Rescale max_topics to 100%
-    # ratio_sum = sum([topic["ratio"] for topic in topics_out])
-    # for topic in topics_out:
-    #     topic["ratio"] = round(topic["ratio"]/ratio_sum, 3)
-
     return sentiment_out, topics_out
 
 
 def analyze_speaker_sentiment(annotated_transcript):
-    """ Concatenates each speaker's sentences in one text and gets the sentiment score (magnitude is ignored)."""
+    """Concatenates each speaker's sentences in one text and gets the sentiment score (magnitude is ignored)."""
 
     language_client = language_v1.LanguageServiceClient(credentials=CREDENTIALS)
     speaker_concatenated_text = {}
@@ -79,21 +74,21 @@ def analyze_speaker_sentiment(annotated_transcript):
     return speaker_sentiment
 
 
-def analyze_audio(file_path, speaker_count=3):
+def analyze_audio(ogg_file_path, speaker_count=3):
     """Takes an audio file and outputs meeting statistics as a dictionary.
 
     Args:
-        file_path (str)
-        speaker_count (int)
+        ogg_file_path (str): Path to the audio file in ogg-format.
+        speaker_count (int): Number of people participating in the meeting.
 
     Returns:
         Dict[str, Any]
 
     """
 
-    # Convert files to flac
-    if file_path.split(".")[-1] != "flac":
-        file_path = convert_ogg2flac(file_path)
+    # Convert audio files to flac
+    if ogg_file_path.split(".")[-1] != "flac":
+        ogg_file_path = convert_ogg2flac(ogg_file_path)
 
     speech_client = speech_v1p1beta1.SpeechClient(credentials=CREDENTIALS)
 
@@ -104,25 +99,20 @@ def analyze_audio(file_path, speaker_count=3):
         "encoding": speech_v1p1beta1.enums.RecognitionConfig.AudioEncoding.FLAC,
         "max_alternatives": 1,
         "use_enhanced": True,
-        # "audio_channel_count": 1,
         "sample_rate_hertz": 48000,
     }
 
-    # Local file
-    # with io.open(file_path, "rb") as f:
-    #     content = f.read()
-    # audio = {"content": content}
-
-    # GCS Storage
+    # Upload file to GCS Storage bucket
     client = storage.Client(credentials=CREDENTIALS)
-    bucket = client.get_bucket('cthack19-meeting-moderator-machine')
-    blob = bucket.blob(file_path)
-    blob.upload_from_filename(file_path)
-    audio = {"uri": f"gs://cthack19-meeting-moderator-machine/{file_path}"}
+    bucket = client.get_bucket(GCS_BUCKET_NAME)
+    blob = bucket.blob(ogg_file_path)
+    blob.upload_from_filename(ogg_file_path)
+    audio = {"uri": f"gs://{GCS_BUCKET_NAME}/{ogg_file_path}"}
 
     operation = speech_client.long_running_recognize(config, audio)
     response = operation.result()
 
+    # Empty response when speech to text failed
     if not response.results:
         json_out = {
             "google_transcript": "",
