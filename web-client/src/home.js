@@ -53,6 +53,8 @@ const Home = () => {
                   setTranscript(analizedAudio.transcript);
                 }}
                 setIsLoading={setIsLoading}
+                speakersCount={speakersCount}
+                setSpeakersCount={setSpeakersCount}
               />
             </Header>
           </Grid.Column>
