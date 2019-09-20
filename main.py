@@ -24,10 +24,11 @@ def send_css(path):
 @app.route("/uploadAudio",methods=["POST"])
 def uploadAudio():
      content = request.files["file"].read()
+     speakers_count = int(request.form.get('speakers_count'))
+     print(speakers_count)
      with open('file.wav', 'wb') as f_vid:
          f_vid.write(content)
-
-     return  analyze_speech.analyze_audio('file.wav')
+     return  analyze_speech.analyze_audio('file.wav', speakers_count)
 
 
 if __name__ == "__main__":
