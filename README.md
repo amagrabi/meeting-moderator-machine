@@ -4,7 +4,7 @@ Voice-based bot that listens to meetings and helps to improve them in the follow
 
 1) Avoid imbalanced meetings in which one person talks too much.
 2) Avoid chaotic meetings in which people do not stay on topic.
-3) Avoid negative meetings when people.
+3) Avoid negative meetings when people are too pessimistic.
 
 File uploads only work with Ogg audio files at the moment.
 
