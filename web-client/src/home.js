@@ -1,56 +1,22 @@
 import React from "react";
-import { Container, Header, Menu, Grid } from "semantic-ui-react";
+import {
+  Container,
+  Header,
+  Menu,
+  Grid,
+  Loader,
+  Dimmer
+} from "semantic-ui-react";
 import * as d3 from "d3";
 import Chart from "./Chart";
 import AudioControls from "./audio-controls";
 
-const sentimentScale = d3
-  .scaleLinear()
-  .domain([-1, 1])
-  .range(["green", "red"]);
-
-const normalizer = d3
-  .scaleLinear()
-  .domain([3, 12])
-  .range([0, 1]);
-
 const Home = () => {
-  const speakers = ["Evi", "Islam", "Amadeus"];
-  const topics = ["AI", "Commercetools", "Pizza", "Weather", "Global warming"];
+  const [sentiment, setSentiment] = React.useState({});
+  const [speakers, setSpeakers] = React.useState([]);
+  const [topics, setTopics] = React.useState([]);
+  const [isLoading, setIsLoading] = React.useState(false);
 
-  const data = React.useMemo(
-    () => ({
-      datasets: [
-        {
-          label: "AI",
-          data: [12, 19, 3, 5, 2, 3],
-          backgroundColor: "blue"
-        },
-        {
-          label: "Commercetools",
-
-          data: [12, 19, 3, 5, 2, 3].map(x => x * Math.random()),
-          backgroundColor: "red"
-        }
-      ],
-      labels: speakers
-    }),
-    []
-  );
-  const options = React.useMemo(
-    () => ({
-      scales: {
-        yAxes: [
-          {
-            ticks: {
-              beginAtZero: true
-            }
-          }
-        ]
-      }
-    }),
-    []
-  );
   return (
     <div>
       <Menu fixed="top" inverted>
@@ -63,103 +29,162 @@ const Home = () => {
       </Menu>
       <Grid columns={3} padded>
         <Grid.Row>
-          <Grid.Column></Grid.Column>
+          <Grid.Column />
           <Grid.Column>
             <Header>
-              <AudioControls />
+              <AudioControls
+                visualize={analizedAudio => {
+                  setSentiment(analizedAudio.sentiment);
+                  setSpeakers(analizedAudio.speakers);
+                  setTopics(analizedAudio.topics);
+                }}
+                setIsLoading={setIsLoading}
+              />
             </Header>
           </Grid.Column>
-          <Grid.Column></Grid.Column>
+          <Grid.Column />
         </Grid.Row>
-
-        <Grid.Row>
-          <Grid.Column>
-            <Container style={{ width: "600px" }}>
-              <Chart
-                width={200}
-                height={200}
-                type="horizontalBar"
-                data={data}
-                options={options}
-              />
-            </Container>
-          </Grid.Column>
-          <Grid.Column>
-            <Container style={{ width: "600px" }}>
-              <Chart
-                width={200}
-                height={200}
-                type="pie"
-                data={{
-                  datasets: [
-                    {
-                      data: [10, 20, 30],
-                      backgroundColor: [
-                        "rgba(255, 99, 132, 0.2)",
-                        "rgba(54, 162, 235, 0.2)",
-                        "rgba(255, 206, 86, 0.2)",
-                        "rgba(75, 192, 192, 0.2)",
-                        "rgba(153, 102, 255, 0.2)",
-                        "rgba(255, 159, 64, 0.2)"
+        {isLoading || speakers.length === 0 ? (
+          <Grid.Row>
+            <Grid.Column />
+            <Grid.Column>
+              <Container style={{ width: "600px" }}>
+                <Dimmer active inverted>
+                  {speakers.length === 0 ? (
+                    "No data available"
+                  ) : (
+                    <Loader inverted>Loading</Loader>
+                  )}
+                </Dimmer>
+              </Container>
+            </Grid.Column>
+          </Grid.Row>
+        ) : (
+          <Grid.Row>
+            <Grid.Column>
+              <Container style={{ width: "600px" }}>
+                <h1>Sentiment </h1>
+                <p>How was the general feeling during the meeting</p>
+                <small>Green means more positive, and red means negative</small>
+                <img
+                  src="//raw.githubusercontent.com/d3/d3-scale-chromatic/master/img/RdYlGn.png"
+                  alt="RdYlGn"
+                  width="100%"
+                  height="40"
+                ></img>
+                <Chart
+                  width={200}
+                  height={200}
+                  type="bar"
+                  data={{
+                    datasets: [
+                      {
+                        label: "Sentiment",
+                        data: [sentiment.magnitude],
+                        backgroundColor: [
+                          d3.interpolateRdYlGn(
+                            d3
+                              .scaleLinear()
+                              .domain([-1, 1])
+                              .range([0, 1])(sentiment.score)
+                          )
+                        ]
+                      }
+                    ]
+                  }}
+                  options={{
+                    scales: {
+                      yAxes: [
+                        {
+                          ticks: {
+                            suggestedMax: 1,
+                            suggestedMin: 0
+                          }
+                        }
                       ]
                     }
-                  ],
+                  }}
+                />
+              </Container>
+            </Grid.Column>
+            <Grid.Column>
+              <Container style={{ width: "600px" }}>
+                <h1>Topics covered </h1>
+                <p>What was taked about during the meeting</p>
+                <small>
+                  The size of each part of the Pie, coresponds to how long it
+                  was covered
+                </small>
+                <Chart
+                  width={200}
+                  height={200}
+                  type="pie"
+                  data={{
+                    datasets: [
+                      {
+                        data: topics.map(({ ratio }) => ratio),
+                        backgroundColor: d3.schemeTableau10
+                      }
+                    ],
 
-                  // These labels appear in the legend and in the tooltips when hovering different arcs
-                  labels: ["Red", "Yellow", "Blue"]
-                }}
-                options={options}
-              />
-            </Container>
-          </Grid.Column>
-          <Grid.Column>
-            <Container style={{ width: "600px" }}>
-              <Chart
-                width={200}
-                height={200}
-                type="horizontalBar"
-                data={data}
-                options={options}
-              />
-            </Container>
-          </Grid.Column>
-        </Grid.Row>
+                    // These labels appear in the legend and in the tooltips when hovering different arcs
+                    labels: topics.map(({ topic }) => topic)
+                  }}
+                  options={{
+                    scales: {
+                      yAxes: [
+                        {
+                          ticks: {
+                            suggestedMax: 1,
+                            suggestedMin: 0
+                          }
+                        }
+                      ]
+                    }
+                  }}
+                />
+              </Container>
+            </Grid.Column>
+            <Grid.Column>
+              <Container style={{ width: "600px" }}>
+                <h1>Speakers contriputions ratio</h1>
+                <p>How long each speaker participated to the meeting</p>
+                <small>
+                  The size of each part of the Pie, coresponds to how long the
+                  speaker talked
+                </small>
+                <Chart
+                  width={200}
+                  height={200}
+                  type="pie"
+                  data={{
+                    datasets: [
+                      {
+                        data: speakers.map(({ ratio }) => ratio),
+                        backgroundColor: d3.schemeTableau10
+                      }
+                    ],
 
-        <Grid.Row>
-          <Grid.Column>
-            <Container style={{ width: "600px" }}>
-              <Chart
-                width={200}
-                height={200}
-                type="bar"
-                data={data}
-                options={options}
-              />
-            </Container>
-          </Grid.Column>
-          <Grid.Column>
-            <Container style={{ width: "600px" }}>
-              <Chart
-                width={200}
-                height={200}
-                type="bar"
-                data={data}
-                options={options}
-              />
-            </Container>
-          </Grid.Column>
-          <Grid.Column>
-            <Container style={{ width: "600px" }}>
-              <Chart
-                width={200}
-                height={200}
-                type="bar"
-                data={data}
-                options={options}
-              />
-            </Container>
-          </Grid.Column>
-        </Grid.Row>
+                    // These labels appear in the legend and in the tooltips when hovering different arcs
+                    labels: speakers.map(({ speaker_id }) => speaker_id)
+                  }}
+                  options={{
+                    scales: {
+                      yAxes: [
+                        {
+                          ticks: {
+                            suggestedMax: 1,
+                            suggestedMin: 0
+                          }
+                        }
+                      ]
+                    }
+                  }}
+                />
+              </Container>
+            </Grid.Column>
+          </Grid.Row>
+        )}
       </Grid>
     </div>
   );

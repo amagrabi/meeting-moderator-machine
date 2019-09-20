@@ -1,13 +1,9 @@
 import React from "react";
 import { Container, Button } from "semantic-ui-react";
 
-const AudioControls = () => {
+const AudioControls = props => {
   const [isPlaying, setIsPlaying] = React.useState(false);
-  const [rawTranscript, setRawTranscript] = React.useState("");
-  const [transcript, setTranscript] = React.useState([]);
-  const [speakers, setSpeakers] = React.useState([]);
   const recorderRef = React.useRef(null);
-  const downloadRef = React.useRef(null);
 
   return (
     <Container text style={{ marginTop: "7em" }}>
@@ -28,36 +24,22 @@ const AudioControls = () => {
             });
 
             recorderRef.current.addEventListener("stop", () => {
-              downloadRef.current.href = URL.createObjectURL(
-                new Blob(recordedChunks)
-              );
+              // downloadRef.current.href = URL.createObjectURL(
+              //   new Blob(recordedChunks)
+              // );
               activeTracks.map(track => track.stop());
 
-              downloadRef.current.download = "acetest.wav";
+              // downloadRef.current.download = "acetest.wav";
               let form = new FormData();
               form.append("file", new Blob(recordedChunks));
+              props.setIsLoading(true);
               fetch("/uploadAudio", { method: "post", body: form })
                 .then(res => res.json())
                 .then(res => {
-                  const { raw_transcript, speakers, transcript } = res;
-                  setRawTranscript(raw_transcript);
-                  setTranscript(transcript);
-                  setSpeakers(speakers);
-                  // {
-                  // "raw_transcript": "hello lit again alone",
-                  // "speakers": [
-                  //   {
-                  //     "ratio": 1.0,
-                  //     "speaker_id": 1
-                  //   }
-                  // ],
-                  // "transcript": [
-                  //   {
-                  //     "line": "hello lit again alone",
-                  //     "speaker_id": 1
-                  //   }
-                  // ]
-                  // }
+                  props.visualize(res);
+                })
+                .finally(() => {
+                  props.setIsLoading(false);
                 });
             });
 
@@ -83,15 +65,6 @@ const AudioControls = () => {
       >
         Stop the meeting
       </Button>
-      <Container as="h1">
-        <a
-          ref={downloadRef}
-          href={downloadRef.current && downloadRef.current.href}
-        >
-          Download
-        </a>
-      </Container>
-      {rawTranscript}
     </Container>
   );
 };
