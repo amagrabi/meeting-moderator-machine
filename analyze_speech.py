@@ -52,6 +52,32 @@ def analyze_text(text, max_topics=5):
     return sentiment_out, topics_out
 
 
+def analyze_speaker_sentiment(annotated_transcript):
+    """ Concatenates each speaker's sentences in one text and gets the sentiment score (magnitude is ignored)."""
+
+    language_client = language_v1.LanguageServiceClient(credentials=CREDENTIALS)
+    speaker_concatenated_text = {}
+
+    for row in annotated_transcript:
+        speaker_id = row['speaker_id']
+        line = row['line']
+        if speaker_id in speaker_concatenated_text.keys():
+            speaker_concatenated_text[speaker_id] = speaker_concatenated_text[speaker_id] + "." + line
+        else:
+            speaker_concatenated_text[speaker_id] = line
+
+    speaker_sentiment = {}
+    for speaker_id in speaker_concatenated_text.keys():
+        document = {"content": speaker_concatenated_text[speaker_id],
+                    "type": language_v1.enums.Document.Type.PLAIN_TEXT,
+                    "language": "en"}
+        # Analyze speaker sentiment
+        sentiment = language_client.analyze_sentiment(document=document).document_sentiment
+        speaker_sentiment[speaker_id] = round(sentiment.score, 2)
+
+    return speaker_sentiment
+
+
 def analyze_audio(file_path, speaker_count=3):
     """Takes an audio file and outputs meeting statistics as a dictionary.
 
@@ -147,6 +173,10 @@ def analyze_audio(file_path, speaker_count=3):
     sentiment, topics = analyze_text(json_out["raw_transcript"])
     json_out["sentiment"] = sentiment
     json_out["topics"] = topics
+    # Include speaker sentiment
+    speaker_sentiment = analyze_speaker_sentiment(json_out['transcript'])
+    for line in json_out['speakers']:
+        line.update({'sentiment_score': speaker_sentiment[line['speaker_id']]})
 
     return json_out
 
