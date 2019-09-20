@@ -2,6 +2,7 @@ import io
 
 from google.cloud import speech_v1p1beta1
 from google.cloud import language_v1
+from google.cloud import storage
 from google.oauth2 import service_account
 from pydub import AudioSegment
 
@@ -76,18 +77,22 @@ def analyze_audio(file_path, speaker_count=3):
         "language_code": "en-US",
         "encoding": speech_v1p1beta1.enums.RecognitionConfig.AudioEncoding.FLAC,
         "max_alternatives": 1,
-        "use_enhanced": True
+        "use_enhanced": True,
         # "audio_channel_count": 1,
-        # "sample_rate_hertz": 48000,
+        "sample_rate_hertz": 48000,
     }
 
     # Local file
-    with io.open(file_path, "rb") as f:
-        content = f.read()
-    audio = {"content": content}
+    # with io.open(file_path, "rb") as f:
+    #     content = f.read()
+    # audio = {"content": content}
 
     # GCS Storage
-    # audio = {"uri": file_path}
+    client = storage.Client(credentials=CREDENTIALS)
+    bucket = client.get_bucket('cthack19-meeting-moderator-machine')
+    blob = bucket.blob(file_path)
+    blob.upload_from_filename(file_path)
+    audio = {"uri": f"gs://cthack19-meeting-moderator-machine/{file_path}"}
 
     operation = speech_client.long_running_recognize(config, audio)
     response = operation.result()
@@ -153,8 +158,8 @@ def analyze_audio(file_path, speaker_count=3):
 
 def main():
     from pprint import pprint
-    file_path = "audio_samples/meeting_ct_02_1mins.ogg"
-    pprint(analyze_audio(file_path, speaker_count=3))
+    file_path = "audio_samples/01_kitchen.wav"
+    pprint(analyze_audio(file_path, speaker_count=2))
 
 
 if __name__ == "__main__":

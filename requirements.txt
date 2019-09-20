@@ -1,9 +1,9 @@
 ffmpeg-python
 google-cloud-speech
+google-cloud-storage
 google-cloud-language
 ipython
 numpy
 pandas
 pydub
 Flask==1.1.1
-google-cloud-language
