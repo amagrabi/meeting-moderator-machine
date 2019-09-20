@@ -3,7 +3,7 @@ import { Container, Button, Input, Label } from "semantic-ui-react";
 
 const AudioControls = props => {
   const [isPlaying, setIsPlaying] = React.useState(false);
-  const [speakersCount, setSpeakersCount] = React.useState(0);
+  const [speakersCount, setSpeakersCount] = React.useState(3);
   const recorderRef = React.useRef(null);
 
   return (
