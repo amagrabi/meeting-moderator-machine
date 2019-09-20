@@ -7,7 +7,7 @@ Build a voice-based bot that listens to our meetings and helps to improve them.
 2) Avoid chaotic meetings in which people do not stay on topic.
 3) Avoid negative meetings when people.
 
-![demo][demo.png]
+![demo](demo.png)
 
 ## Environment Setup
 
