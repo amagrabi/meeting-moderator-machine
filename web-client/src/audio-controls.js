@@ -4,7 +4,6 @@ import { Container, Button, Input, Label } from "semantic-ui-react";
 const AudioControls = props => {
   const downloadRef = React.useRef(null);
   const [isPlaying, setIsPlaying] = React.useState(false);
-  const [speakersCount, setSpeakersCount] = React.useState(3);
   const recorderRef = React.useRef(null);
 
   return (
@@ -34,7 +33,7 @@ const AudioControls = props => {
                 downloadRef.current.download = "acetest.wav";
                 let form = new FormData();
                 form.append("file", new Blob(recordedChunks));
-                form.append("speakers_count", speakersCount);
+                form.append("speakers_count", props.speakersCount);
                 props.setIsLoading(true);
                 fetch("/uploadAudio", { method: "post", body: form })
                   .then(res => res.json())
@@ -72,8 +71,8 @@ const AudioControls = props => {
           Speakers count
           <Input
             min={0}
-            value={speakersCount}
-            onChange={e => setSpeakersCount(e.target.value)}
+            value={props.speakersCount}
+            onChange={e => props.setSpeakersCount(e.target.value)}
             icon="users"
             iconPosition="left"
             placeholder="speakers count..."
@@ -90,8 +89,8 @@ const AudioControls = props => {
           <Input
             onChange={e => {
               let form = new FormData();
-              form.append("file", e.target.files[0]);
-              form.append("speakers_count", speakersCount);
+              form.append("file", e.target.files[e.target.files.length - 1]);
+              form.append("speakers_count", props.speakersCount);
               props.setIsLoading(true);
               fetch("/uploadAudio", { method: "post", body: form })
                 .then(res => res.json())
