@@ -44,21 +44,19 @@ const Home = () => {
           </Grid.Column>
           <Grid.Column />
         </Grid.Row>
-        {isLoading || speakers.length === 0 ? (
+        {isLoading ? (
           <Grid.Row>
             <Grid.Column />
             <Grid.Column>
               <Container style={{ width: "600px" }}>
                 <Dimmer active inverted>
-                  {speakers.length === 0 ? (
-                    "No data available"
-                  ) : (
-                    <Loader inverted>Loading</Loader>
-                  )}
+                  <Loader inverted>Loading</Loader>
                 </Dimmer>
               </Container>
             </Grid.Column>
           </Grid.Row>
+        ) : speakers.length === 0 ? (
+          "No data available"
         ) : (
           <Grid.Row>
             <Grid.Column>
